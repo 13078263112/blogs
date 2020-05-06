@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html class="x-admin-sm">
+
+	<head>
+		<meta charset="UTF-8">
+		<title>欢迎嘟嘟~博客</title>
+		<link rel="stylesheet" href="../static/xadmin/css/font.css">
+		<link rel="stylesheet" href="../static/xadmin/css/xadmin.css">
+		<script type="text/javascript" src="../static/plugin/jquery/emoji/lib/script/jquery.min.js"></script>
+		<script src="https://cdn.staticfile.org/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
+		<script src="../static/xadmin/lib/layui/layui.js" charset="utf-8"></script>
+		<script type="text/javascript" src="../static/xadmin/js/xadmin.js"></script>
+		<script type="text/javascript" src="../static/xadmin/js/cookie.js"></script>
+	</head>
+
+	<body>
+		<div class="x-body">
+			<blockquote class="layui-elem-quote">欢迎管理员：
+				<span class="x-red"></span>！当前时间:<span class="x-time"></span>
+			</blockquote>
+			<fieldset class="layui-elem-field">
+				<legend>数据统计</legend>
+				<div class="layui-field-box">
+					<div class="layui-col-md12">
+						<div class="layui-card">
+							<div class="layui-card-body">
+								<div class="layui-carousel x-admin-carousel x-admin-backlog" lay-anim="" lay-indicator="inside" lay-arrow="none"
+								 style="width: 100%; height: 90px;">
+									<div carousel-item="">
+										<ul class="layui-row layui-col-space10 layui-this">
+											<li class="layui-col-xs2">
+												<a href="javascript:;" class="x-admin-backlog-body">
+													<h3>文章数</h3>
+													<p>
+														<cite id="blogarticle"></cite></p>
+												</a>
+											</li>
+											<li class="layui-col-xs2">
+												<a href="javascript:;" class="x-admin-backlog-body">
+													<h3>管理数</h3>
+													<p>
+														<cite id="adminNum"></cite></p>
+												</a>
+											</li>
+											<li class="layui-col-xs2">
+												<a href="javascript:;" class="x-admin-backlog-body">
+													<h3>评论数</h3>
+													<p>
+														<cite id="pl">99</cite></p>
+												</a>
+											</li>
+											<li class="layui-col-xs2">
+												<a href="javascript:;" class="x-admin-backlog-body">
+													<h3>总浏览</h3>
+													<p>
+														<cite id="pv"></cite></p>
+												</a>
+											</li>
+										</ul>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</fieldset>
+			<fieldset class="layui-elem-field">
+				<legend>系统信息</legend>
+				<div class="layui-field-box">
+					<table class="layui-table">
+						<tbody>
+							<tr>
+								<th>基础版本</th>
+								<td>1.0</td>
+							</tr>
+							<tr>
+								<th>服务器地址</th>
+								<td>---------------</td>
+							</tr>
+							<tr>
+								<th>操作系统</th>
+								<td>linux</td>
+							</tr>
+							<tr>
+								<th>运行环境</th>
+								<td>tomcat7</td>
+							</tr>
+							<tr>
+								<th>MYSQL版本</th>
+								<td>5.7</td>
+							</tr>
+							<tr>
+								<th>登录时间限制</th>
+								<td>30*60*60s</td>
+							</tr>
+
+						</tbody>
+					</table>
+				</div>
+			</fieldset>
+			<fieldset class="layui-elem-field">
+				<legend>开发团队</legend>
+				<div class="layui-field-box">
+					<table class="layui-table">
+						<tbody>
+							<tr>
+								<th>版权所有</th>
+								<td>广现18java姚伟成
+								</td>
+							</tr>
+							<tr>
+								<th>开发者</th>
+								<td>姚伟成(77356399@qq.com)</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</fieldset>
+
+		</div>
+
+	</body>
+	<script type="text/javascript">
+		
+		<!--检查是否登录-->
+		if ($.cookie("adminName") == null||$.cookie("adminName") =="") {
+			location.href = 'login.html'
+		}
+		$(function() {
+			setInterval("GetTime()", 1000);
+		});
+		//获取时间并设置格式
+		function GetTime() {
+			var mon, day, now, hour, min, ampm, time, str, tz, end, beg, sec;
+			/*
+          mon = new Array("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug",
+                "Sep", "Oct", "Nov", "Dec");
+         */
+			mon = new Array("一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月",
+				"九月", "十月", "十一月", "十二月");
+			/*
+			day = new Array("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat");
+			*/
+			day = new Array("周日", "周一", "周二", "周三", "周四", "周五", "周六");
+			now = new Date();
+			hour = now.getHours();
+			min = now.getMinutes();
+			sec = now.getSeconds();
+			if (hour < 10) {
+				hour = "0" + hour;
+			}
+			if (min < 10) {
+				min = "0" + min;
+			}
+			if (sec < 10) {
+				sec = "0" + sec;
+			}
+			$(".x-time").text(
+				now.getFullYear() + "-" + (now.getMonth() + 1) + "-" + now.getDate() + "-" + "  " + hour + ":" + min + ":" + sec
+			);
+
+		}
+		$(".x-red").text($.cookie("adminName"))
+		<!--获取文章所有的数量-->
+		$.ajax({
+			type: "get",
+			url: "/blogs_puls/article/articlenum",
+			async: true,
+			success: function(data) {
+				$("#blogarticle").html(data.list)
+			}
+		});
+		<!--获取管理数量-->
+		$.ajax({
+			type: "get",
+			url: "/blogs_puls/admin/adminNum",
+			async: true,
+			success: function(data) {
+				$("#adminNum").html(data.list)
+			}
+		});
+		<!--获取评论量-->
+		$.ajax({
+			type: "get",
+			url: "/blogs_puls/comment/commentnum",
+			async: true,
+			success: function(data) {
+				$("#pl").html(data.list)
+			}
+		});
+		<!--获取pv量-->
+		$.ajax({
+			type: "get",
+			url: "/blogs_puls/article/readnumNum",
+			async: true,
+			success: function(data) {
+				$("#pv").html(data.list)
+			}
+		});
+	</script>
+
+</html>

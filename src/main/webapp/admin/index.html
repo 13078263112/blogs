@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>后台主页</title>
+		<link rel="stylesheet" href="../static/xadmin/css/font.css">
+		<link rel="stylesheet" href="../static/xadmin/css/xadmin.css">
+		<script type="text/javascript" src="../static/plugin/jquery/emoji/lib/script/jquery.min.js"></script>
+		<script src="https://cdn.staticfile.org/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
+		<script type="text/javascript" src="https://cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.min.js"></script>
+		<script src="../static/xadmin/lib/layui/layui.js" charset="utf-8"></script>
+		<script type="text/javascript" src="../static/xadmin/js/xadmin.js"></script>
+		<script type="text/javascript" src="../static/xadmin/js/cookie.js"></script>
+	</head>
+	<body>
+		<!-- 顶部开始 -->
+		<div class="container">
+			<div class="logo"><a href="./index.html">嘟嘟~博客后台</a></div>
+			<div class="left_open">
+				<i title="展开左侧栏" class="iconfont">&#xe699;</i>
+			</div>
+			<ul class="layui-nav right" lay-filter="">
+				<li class="layui-nav-item">
+					<a href="javascript:;" id="adminName"></a>
+					<dl class="layui-nav-child"> 
+						<dd><a href="login.html">切换帐号</a> </dd>
+						<dd><a onclick="decorporation()">退出</a></dd>
+					</dl>
+				</li>
+				<li class="layui-nav-item to-index"><a href="/blogs_puls/">前台首页</a></li>
+			</ul>
+
+		</div>
+		<!-- 顶部结束 -->
+		<!-- 中部开始 -->
+		<!-- 左侧菜单开始 -->
+		<div class="left-nav">
+			<div id="side-nav">
+				<ul id="nav">
+					<li>
+						<a href="javascript:;">
+							<i class="iconfont">&#xe6b8;</i>
+							<cite>文章管理</cite>
+							<i class="iconfont nav_right">&#xe697;</i>
+						</a>
+						<ul class="sub-menu">
+							<li date-refresh="1">
+								<a _href="member-list.html">
+									<i class="iconfont">&#xe6a7;</i>
+									<cite>文章列表</cite>
+
+								</a>
+							</li>
+							<li date-refresh="1">
+								<a _href="member-add.html">
+									<i class="iconfont">&#xe6a7;</i>
+									<cite>添加文章</cite>
+								</a>
+							</li>
+							<li date-refresh="1">
+								<a _href="member-del.html">
+									<i class="iconfont">&#xe6a7;</i>
+									<cite>已删除文章</cite>
+								</a>
+							</li>
+
+						</ul>
+					</li>
+					<li>
+						<a href="javascript:;">
+							<i class="iconfont">&#xe723;</i>
+							<cite>类型管理</cite>
+							<i class="iconfont nav_right">&#xe697;</i>
+						</a>
+						<ul class="sub-menu">
+							<li>
+								<a _href="articletype-list.html">
+									<i class="iconfont">&#xe6a7;</i>
+									<cite>类型列表</cite>
+								</a>
+							</li>
+						</ul>
+					</li>
+					<li>
+						<a href="javascript:;">
+							<i class="iconfont">&#xe723;</i>
+							<cite>评论管理</cite>
+							<i class="iconfont nav_right">&#xe697;</i>
+						</a>
+						<ul class="sub-menu">
+							<li>
+								<a _href="comment-list.html">
+									<i class="iconfont">&#xe6a7;</i>
+									<cite>评论列表</cite>
+								</a>
+							</li>
+						</ul>
+						<ul class="sub-menu">
+							<li>
+								<a _href="comment-audit.html">
+									<i class="iconfont">&#xe6a7;</i>
+									<cite>评论审核</cite>
+								</a>
+							</li>
+						</ul>
+					</li>
+					 <li>
+						<a href="javascript:;">
+							<i class="iconfont">&#xe726;</i>
+							<cite>账户管理</cite>
+							<i class="iconfont nav_right">&#xe697;</i>
+						</a>
+						<ul class="sub-menu">
+							<li>
+								<a _href="admin-alter.html">
+									<i class="iconfont">&#xe6a7;</i>
+									<cite>修改密码</cite>
+								</a>
+							</li>
+						</ul>
+					</li>
+					
+				</ul>
+			</div>
+		</div>
+		<!-- <div class="x-slide_left"></div> -->
+		<!-- 左侧菜单结束 -->
+		<!-- 右侧主体开始 -->
+		<div class="page-content">
+			<div class="layui-tab tab" lay-filter="xbs_tab" lay-allowclose="false">
+				<ul class="layui-tab-title">
+					<li class="home"><i class="layui-icon">&#xe68e;</i>我的桌面</li>
+				</ul>
+				<div class="layui-unselect layui-form-select layui-form-selected" id="tab_right">
+					<dl>
+						<dd data-type="this">关闭当前</dd>
+						<dd data-type="other">关闭其它</dd>
+						<dd data-type="all">关闭全部</dd>
+					</dl>
+				</div>
+				<div class="layui-tab-content">
+					<div class="layui-tab-item layui-show">
+						<iframe src='welcome.html' frameborder="0" scrolling="yes" class="x-iframe"></iframe>
+					</div>
+				</div>
+				<div id="tab_show"></div>
+			</div>
+		</div>
+		<div class="page-content-bg"></div>
+		<!-- 右侧主体结束 -->
+		<!-- 中部结束 -->
+		<!-- 底部开始 -->
+		<div class="footer">
+			<div class="copyright">
+				<div class="main-content">
+					<strong>&copy;</strong> &nbsp;2019.12.15 &nbsp;by &nbsp;
+					<a href="#">嘟嘟</a>
+					<!--<span>备案号：<a href="http://www.miitbeian.gov.cn/" target="_blank">蜀ICP备16031990号-2</a></span> -->
+					<span>广现18Java姚伟成</span>
+				</div>
+			</div>
+		</div>
+	</body>
+	<script>
+		layui.use('laydate', function() {
+			var laydate = layui.laydate;
+		
+			//执行一个laydate实例
+			laydate.render({
+				elem: '#start' //指定元素
+			});
+		
+			//执行一个laydate实例
+			laydate.render({
+				elem: '#end' //指定元素
+			});
+		});
+		<!--检查是否登录-->
+		if ($.cookie("adminName") == null||$.cookie("adminName") =="") {
+			location.href = 'login.html'
+		} else {
+			$("#adminName").text($.cookie("adminName"))
+		}
+		<!--检查权限-->
+		if ($.cookie("adminName") =='admin') {
+		 	var tr ="<li><a href='javascript:;'><i class='iconfont'>&#xe726;</i><cite>后台用户管理</cite><i class='iconfont nav_right'>&#xe697;</i></a><ul class='sub-menu manage'><li><a _href='admin-list.html'><i class='iconfont'>&#xe6a7;</i><cite>管理员列表</cite></a></li></ul></li>"
+				$("#nav").append(tr)
+		}
+		 function decorporation(){
+			 $.ajax({
+			 	type: "post",
+			 	url: "/blogs_puls/admin/adminDecorporation",
+			 	async: true,
+			 	success: function(data) {	
+			 		if (data.msg == '退出成功') {
+			 			layer.msg('退出成功', {
+			 				icon: 1
+			 			});
+			 			$(function() {
+			 				window.setTimeout(function() {
+			 					location.href = "login.html";
+			 				}, 2000);
+			 			});
+			 		} else {
+			 			layer.msg('退出失败', {
+			 				icon: 1
+			 			});
+			 		}
+			 	}
+			 });
+		 }
+		
+	</script>
+</html>

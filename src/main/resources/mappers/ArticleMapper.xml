@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ywc.blogs.mapper.ArticleMapper">
+    <!--前台-->
+    <resultMap id="articleResultMap" type="com.ywc.blogs.entity.Article">
+        <result property="articleId" column="article_id"/>
+        <result property="articleTitle" column="article_title"/>
+        <result property="articleTheme" column="article_theme"/>
+        <result property="articleContent" column="article_content"/>
+        <result property="articleReadnum" column="article_readnum"/>
+        <result property="articleCreationtime" column="article_creationtime"/>
+        <result property="articleUpdatetime" column="article_updatetime"/>
+        <result property="articleIsdelete" column="article_isdelete"/>
+        <result property="articleIsoriginal" column="article_isoriginal"/>
+        <result property="articleIsrecommend" column="article_isrecommend"/>
+        <collection property="admin" ofType="com.ywc.blogs.entity.Admin">
+            <result property="adminName" column="admin_name"/>
+        </collection>
+        <collection property="articleTypes" ofType="com.ywc.blogs.entity.ArticleType">
+            <result property="atypeId" column="atype_id"/>
+            <result property="atypeName" column="atype_name"/>
+        </collection>
+    </resultMap>
+    <!--前台sql-->
+    <select id="queryArticleAll" resultMap="articleResultMap">
+            SELECT
+                ar.article_id,
+                ar.article_title,
+                ar.article_theme,
+                ar.article_content,
+                ar.article_readnum,
+                ar.article_creationtime,
+                ar.article_updatetime,
+                ar.article_isdelete,
+                ar.article_isoriginal,
+                ad.admin_id,
+                ad.admin_name,
+                ad.`password`,
+                aty.atype_id,
+                aty.atype_name
+            FROM
+                article ar,
+                admin ad,
+                article_type aty,
+                article_type_intermediary atyi
+             WHERE
+                ar.article_admin_id=ad.admin_id AND
+                ar.article_id=atyi.article_id AND
+                aty.atype_id=atyi.atype_id
+    </select>
+    <select id="queryArticleAllByIsoriginal" resultType="java.util.Map">
+      SELECT article_id,article_title FROM article WHERE article_isoriginal=1 and article_isdelete=0 and article_id LIMIT 0,6
+    </select>
+    <select id="queryArticleAllByIsrecommend" resultType="java.util.Map">
+      SELECT article_id,article_title FROM article WHERE article_isrecommend=1 and article_isdelete=0 and article_id LIMIT 0,6
+    </select>
+    <select id="queryArticleAllByreadnum" resultType="java.util.Map">
+        SELECT article_id,article_title FROM article  where article_isdelete=0  ORDER BY article_readnum DESC LIMIT 0,6
+    </select>
+    <select id="queryArticleAllNum" resultType="java.lang.Integer">
+       select COUNT(article_id) from article where article_isdelete=0
+    </select>
+    <select id="queryArticleAllByreadnumNum" resultType="java.lang.Integer">
+      select SUM(article_readnum) from article where article_isdelete=0
+    </select>
+    <select id="queryArticleAllByType" resultType="java.util.HashMap">
+              SELECT
+            article.article_id,
+            article.article_title,
+            article.article_creationtime
+        FROM
+            article,
+            article_type,
+            article_type_intermediary
+        WHERE
+            article.article_id = article_type_intermediary.article_id
+            AND
+            article.article_isdelete=0
+            and
+            article_type_intermediary.atype_id=article_type.atype_id
+            AND
+        article_type.atype_name=#{aTypeName} LIMIT 0,8
+    </select>
+    <select id="queryArticleAllByNew" resultType="java.util.HashMap">
+             SELECT
+             ar.article_id,
+            ar.article_title,
+            ar.article_theme,
+            ar.article_creationtime,
+            ar.article_id,
+        ad.admin_name,
+        art.atype_name
+        FROM
+            article ar,
+            article_type art,
+            article_type_intermediary arti,
+            admin ad
+        WHERE
+            ar.article_id=arti.article_id AND
+            art.atype_id=arti.atype_id AND
+            ar.article_isdelete=0
+            and
+            ar.article_admin_id=admin_id  ORDER BY ar.article_creationtime DESC LIMIT 0,7
+    </select>
+    <select id="queryArticleAllByTypeAndSort" resultType="java.util.HashMap">
+            SELECT
+ article.article_id,
+ article.article_title,
+ article.article_theme,
+ article.article_readnum,
+ article.article_creationtime,
+ (SELECT COUNT(c.comment_id) FROM `comment` c WHERE c.article_id=article.article_id) as com,
+article_type.atype_name
+FROM
+article_type,
+ article_type_intermediary,
+ article
+WHERE
+ article.article_id =article_type_intermediary.article_id AND
+ article_type.atype_id =article_type_intermediary.atype_id AND
+ article_type.atype_name=#{aTypeName}
+         <if test="sort=='时间(默认)'">
+             ORDER BY article.article_creationtime DESC
+         </if>
+        <if test="sort=='访问量'">
+            ORDER BY article.article_readnum DESC
+        </if>
+        <if test="sort=='评论数'">
+            ORDER BY com DESC
+        </if>
+    </select>
+    <!--后台sql-->
+    <resultMap id="articleVoResultMap" type="com.ywc.blogs.vo.ArticleVo">
+        <result property="articleId" column="article_id"/>
+        <result property="articleTitle" column="article_title"/>
+        <result property="articleReadnum" column="article_readnum"/>
+        <result property="articleContent" column="article_content"/>
+        <result property="articleTheme" column="article_theme"/>
+        <result property="articleCreationtime" column="article_creationtime"/>
+        <result property="articleUpdatetime" column="article_updatetime"/>
+        <result property="articleIsoriginal" column="article_isoriginal"/>
+        <result property="articleIsrecommend" column="article_isrecommend"/>
+        <result property="adminName" column="admin_name"/>
+
+    </resultMap>
+    <select id="queryArticleAllArticleVo" resultMap="articleVoResultMap">
+         SELECT
+                ar.article_id,
+                ar.article_title,
+                ar.article_readnum,
+                ar.article_content,
+                ar.article_theme,
+                ar.article_creationtime,
+                ar.article_updatetime,
+                ar.article_isrecommend,
+                ar.article_isoriginal,
+                admin.admin_name
+
+            FROM
+                article ar,
+                     admin
+             WHERE
+            ar.article_admin_id=admin.admin_id and
+               ar.article_isdelete=0
+    </select>
+    <update id="updateArticleByIsrecommend" >
+        update article set article_isrecommend=#{articleIsrecommend} where article_id=#{articleId}
+    </update>
+    <update id="updateArticleByIsoriginal" >
+        update article set article_isoriginal=#{articleIsoriginal} where article_id=#{articleId}
+    </update>
+    <update id="updateArticleByIsdelete" >
+        update article set article_isdelete=#{articleIsdelete} where article_id=#{articleId}
+    </update>
+    <insert id="insertArticle" parameterType="com.ywc.blogs.entity.Article"  useGeneratedKeys="true" keyProperty="articleId" keyColumn="articleId">
+        insert  into
+        article(article_title,article_theme,article_content,article_creationtime,article_updatetime,article_admin_id,article_isoriginal)
+        value (#{articleTitle},#{articleTheme},#{articleContent},#{articleCreationtime},#{articleUpdatetime},#{admin.adminId},#{articleIsoriginal})
+    </insert>
+    <select id="queryArticleAllDeleteArticleVo" resultMap="articleVoResultMap">
+         SELECT
+                ar.article_id,
+                ar.article_title,
+                ar.article_readnum,
+                ar.article_creationtime,
+                ar.article_updatetime,
+                ar.article_isrecommend,
+                ar.article_isoriginal,
+                admin.admin_name
+            FROM
+                article ar,
+                admin
+             WHERE
+            ar.article_admin_id=admin.admin_id and
+               ar.article_isdelete=1
+    </select>
+    <delete id="deleteArticleByArticleId">
+        delete  from article where article_id=#{articleId}
+    </delete>
+    <select id="queryArticleByArticleId" resultMap="articleVoResultMap">
+         SELECT
+	ar.article_id,
+	ar.article_title,
+	ar.article_readnum,
+	ar.article_content,
+	ar.article_theme,
+	ar.article_creationtime,
+	ar.article_updatetime,
+	ar.article_isrecommend,
+	ar.article_isoriginal,
+	admin.admin_name
+FROM
+	article ar,
+	admin
+WHERE
+	ar.article_admin_id = admin.admin_id
+AND ar.article_id = #{articleId}
+
+    </select>
+    <update id="updateArticleByArticleId" parameterType="com.ywc.blogs.entity.Article">
+        UPDATE article
+SET article_title = #{articleTitle},article_theme=#{articleTheme},
+article_content=#{articleContent},article_updatetime=#{articleUpdatetime} WHERE article_id=#{articleId}
+    </update>
+
+    <select id="queryArticleTitleByAtypeId" resultType="java.util.Map" parameterType="java.lang.Integer">
+       SELECT
+       article.article_id,
+	article.article_title,
+	article.article_readnum
+FROM
+	article
+WHERE
+	article.article_id IN (
+		SELECT
+			article_type_intermediary.article_id
+		FROM
+			article_type_intermediary
+		WHERE
+			article_type_intermediary.atype_id IN (
+				SELECT
+					article_type.atype_id
+				FROM
+					article_type,
+					article_type_intermediary
+				WHERE
+				article_type.atype_id = article_type_intermediary.atype_id AND
+				 article_type_intermediary.article_id =#{articleId}
+
+			)
+	)
+LIMIT 0,
+ 10
+    </select>
+    <select id="queryArticleArticleVoByarticleId" resultType="java.util.HashMap">
+   SELECT
+ article.article_id,
+ article.article_title,
+ article.article_theme,
+ article.article_content,
+ article.article_readnum,
+ article.article_creationtime,
+ (SELECT COUNT(c.comment_id) FROM `comment` c WHERE c.article_id=article.article_id) as com,
+ admin.admin_name
+FROM
+ article,
+ admin
+WHERE
+admin.admin_id=article.article_admin_id and
+ article.article_id=#{articleId}
+    </select>
+</mapper>

@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<title>文章添加</title>
+		<link rel="stylesheet" href="../static/xadmin/css/font.css">
+		<link rel="stylesheet" href="../static/xadmin/css/xadmin.css">
+		<script type="text/javascript" src="../static/plugin/jquery/emoji/lib/script/jquery.min.js"></script>
+		<script src="https://cdn.staticfile.org/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
+		<script src="../static/xadmin/lib/layui/layui.js" charset="utf-8"></script>
+		<script type="text/javascript" src="../static/xadmin/js/xadmin.js"></script>
+		<script type="text/javascript" src="../static/xadmin/js/cookie.js"></script>
+		<link href="../kindeditor/themes/default/default.css" type="text/css" rel="stylesheet" />
+		<script type="text/javascript" src="../kindeditor/kindeditor-all.js"></script>
+		<script type="text/javascript" charset="utf-8" src="../kindeditor/lang/zh-CN.js"></script>
+	</head>
+
+	<body>
+
+
+		<div class="x-nav">
+			<span class="layui-breadcrumb">
+				<a href="">首页</a>
+				<a href="">文章</a>
+				<a>
+					<cite>导航元素</cite></a>
+			</span>
+			<a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right" href="javascript:location.replace(location.href);"
+			 title="刷新">
+				<i class="layui-icon" style="line-height:30px">ဂ</i></a>
+		</div>
+		<form class="layui-form">
+			<div class="layui-form-item">
+				<label class="layui-form-label">文章标题:</label>
+				<div class="layui-input-block">
+					<input type="text" name="articletitle" id="articletitle" required lay-verify="required" placeholder="请输入文章标题"
+					 autocomplete="off" class="layui-input">
+				</div>
+			</div>
+			<div class="layui-form-item">
+				<label class="layui-form-label">文章关键字:</label>
+				<div class="layui-input-inline">
+					<input type="text" name="articletheme" id="articletheme" required lay-verify="required" placeholder="请输入文章关键字标题"
+					 autocomplete="off" class="layui-input">
+				</div>
+				<div class="layui-form-mid layui-word-aux">(添加文章的吸引力)</div>
+			</div>
+			<div class="layui-form-item">
+				<label class="layui-form-label">文章内容</label>
+				<textarea id="addeditor_id" name="content" style="width:60%;height:350px;border: 0 none;visibility:hidden;"></textarea>
+			</div>
+
+			<div class="layui-form-item">
+				<label class="layui-form-label">文章类型</label>
+				<div class="layui-input-block artype">
+				</div>
+			</div>
+			<div class="layui-form-item">
+				<label class="layui-form-label">是否原创</label>
+				<div class="layui-input-block" id="isrecommend">
+					<input type="radio" name="isrecommend" value="1" title="是">
+					<input type="radio" name="isrecommend" value="0" title="否">
+				</div>
+			</div>
+
+			<div class="layui-form-item">
+				<div class="layui-input-block">
+					<button type="button" class="layui-btn btn" lay-filter="formDemo">立即提交</button>
+					<button type="reset" class="layui-btn layui-btn-primary">重置</button>
+				</div>
+			</div>
+		</form>
+	</body>
+	<script type="text/javascript">
+		<!--检查是否登录-->
+		if ($.cookie("adminName") == null || $.cookie("adminName") == "") {
+			location.href = 'login.html'
+		}
+		<!--富文本-->
+		var editor;
+		KindEditor.ready(function(K) {
+			editor = K.create('#addeditor_id', {
+				themeType: "simple",
+				uploadJson:"../img/upload",
+				resizeType: 1,
+				imageTabIndex: 1,
+				filterMode: true,
+				allowPreviewEmoticons: false,
+				allowImageUpload: true,
+				allowFileManager: true,
+				afterBlur: function() {
+					this.sync();
+				},
+				afterUpload: function(url) {
+					//上传图片后的代码
+					var image = "<img src='" + url + "'/>";
+					console.log(image);
+					$(".ke-content").html(image)
+				},
+				items: [
+					'source', '|', 'undo', 'redo', '|', 'preview', 'print', 'template', 'code', 'cut', 'copy', 'paste',
+					'plainpaste', 'wordpaste', '|', 'justifyleft', 'justifycenter', 'justifyright',
+					'justifyfull', 'insertorderedlist', 'insertunorderedlist', 'indent', 'outdent', 'subscript',
+					'superscript', 'clearhtml', 'quickformat', 'selectall', '|', 'fullscreen', '/',
+					'formatblock', 'fontname', 'fontsize', '|', 'forecolor', 'hilitecolor', 'bold',
+					'italic', 'underline', 'strikethrough', 'lineheight', 'removeformat', '|', 'image', 'multiimage',
+					'flash', 'media', 'insertfile', 'table', 'hr', 'emoticons', 'baidumap', 'pagebreak',
+					'anchor', 'link', 'unlink', '|', 'about'
+				]
+			});
+		});
+		<!--获取文章类型-->
+		$.ajax({
+			type: "get",
+			url: "/blogs_puls/articleType/articleTypeAll",
+			async: true,
+			success: function(data) {
+				for (var i = 0; i < data.list.length; i++) {
+					$(".artype").append("<div class='layui-unselect layui-form-checkbox ary'  value='" + data.list[i].atypeId +
+						"'><span>" + data.list[i].atypeName + "</span><i class='layui-icon layui-icon-ok'></i></div>")
+				}
+			}
+		});
+		<!--给单选框添加单击事件-->
+		$("body").on("click", ".ary", function() {
+			if ($(this).is(".layui-form-checked")) {
+				$(this).removeClass("layui-form-checked")
+			} else {
+				$(this).addClass("layui-form-checked")
+			}
+		})
+		<!--数据提交后台-->
+		$(".btn").click(function() {
+			var articletitle = $("#articletitle").val()
+			var articletheme = $("#articletheme").val()
+			var isrecommend = $("#isrecommend :checked").val()
+			var ary = []
+			var i = 0;
+			$(".ary").each(function() {
+				if ($(this).is(".layui-form-checked")) {
+					ary[i] = $(this).attr("value")
+					i++
+				}
+			})
+			editor.sync();
+			var articleContent = $('#addeditor_id').val()
+			var date = {
+				"articletitle": articletitle,
+				"articletheme": articletheme,
+				"isrecommend": isrecommend,
+				"articleType": ary,
+				"articleContent": articleContent,
+				"adminId": $.cookie("adminId")
+			}
+
+			$.ajax({
+				type: "post",
+				url: "/blogs_puls/article/insertArticle",
+				data: JSON.stringify(date),
+				contentType: "application/json;charset=utf-8",
+				dataType: "json",
+				async: true,
+				success: function(data) {
+					if (data.msg == '添加成功') {
+						layer.msg('添加成功', {
+							icon: 1
+						});
+					} else {
+						layer.msg('添加失败', {
+							icon: 1
+						});
+					}
+				}
+			});
+		})
+	</script>
+
+</html>

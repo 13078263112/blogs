@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ywc.blogs.mapper.CommentAuditMapper">
+    <resultMap id="commentAuditVoResultMap" type="com.ywc.blogs.vo.CommentAuditVo">
+        <result property="commentauditId" column="commentaudit_id"/>
+        <result property="commentauditConten" column="commentaudit_conten"/>
+        <result property="adminName" column="admin_name"/>
+		<result property="articleId" column="article_id"/>
+        <result property="articleTitle" column="article_title"/>
+        <result property="commentauditCreateTime" column="commentaudit_createTime"/>
+    </resultMap>
+    <select id="queryCommentAuditPaging" resultMap="commentAuditVoResultMap">
+        SELECT
+	c.commentaudit_id,
+	c.commentaudit_conten,
+	c.commentaudit_createTime,
+	ar.article_title,
+	ar.article_id,
+	ad.admin_name
+FROM
+	commentaudit c,
+	article ar,
+	admin ad
+WHERE
+	c.article_id=ar.article_id AND
+	ar.article_admin_id=ad.admin_id
+    </select>
+    <select id="qeuryCommentAuditBycommentauditId" resultMap="commentAuditVoResultMap">
+        SELECT
+	c.commentaudit_id,
+	c.commentaudit_conten,
+	c.commentaudit_createTime,
+	ar.article_title,
+	ar.article_id,
+	ad.admin_name
+FROM
+	commentaudit c,
+	article ar,
+	admin ad
+WHERE
+	c.article_id=ar.article_id AND
+	ar.article_admin_id=ad.admin_id and
+	c.commentaudit_id=#{commentauditId}
+    </select>
+	<delete id="deleteCommentAuditBycommentauditId">
+		delete from commentaudit where commentaudit_id=#{commentauditId}
+	</delete>
+	<insert id="insertCommentAudit" parameterType="com.ywc.blogs.vo.CommentAuditVo">
+        insert into  commentaudit(commentaudit_conten,article_id,commentaudit_createTime) VALUE(#{commentauditConten},#{articleId},#{commentauditCreateTime})
+    </insert>
+</mapper>

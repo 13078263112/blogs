@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>用户管理列表 </title>
+		<link rel="stylesheet" href="../static/xadmin/css/font.css">
+		<link rel="stylesheet" href="../static/xadmin/css/xadmin.css">
+		<script type="text/javascript" src="../static/plugin/jquery/emoji/lib/script/jquery.min.js"></script>
+		<script src="https://cdn.staticfile.org/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
+		<script src="../static/xadmin/lib/layui/layui.js" charset="utf-8"></script>
+		<script type="text/javascript" src="../static/xadmin/js/xadmin.js"></script>
+		<script type="text/javascript" src="../static/xadmin/js/cookie.js"></script>
+	</head>
+	<body>
+		
+			<div class="x-nav">
+				<span class="layui-breadcrumb">
+					<a href="">首页</a>
+					<a href="">管理</a>
+					<a>
+						<cite>导航元素</cite></a>
+				</span>
+				<a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right" href="javascript:location.replace(location.href);"
+				 title="刷新">
+					<i class="layui-icon" style="line-height:30px">ဂ</i></a>
+			</div>
+			<div class="x-body">
+		
+				<xblock>
+					<button class="layui-btn " onclick="normal()"><i class="layui-icon"></i>批量正常</button>
+					<button class="layui-btn layui-btn-danger" onclick="forbidden()"><i class="layui-icon"></i>批量禁用</button>
+					<span class="x-right" style="line-height:40px"></span>
+				</xblock>
+				<table class="layui-table x-admin">
+					<thead>
+						<tr>
+							<th>
+								<div class="layui-unselect header layui-form-checkbox" lay-skin="primary"><i class="layui-icon">&#xe605;</i></div>
+							</th>
+							<th>ID</th>
+							<th>用户名</th>
+							<th>创建时间</th>
+							<th>状态</th>
+							<th>操作</th>
+						</tr>
+					</thead>
+					<tbody id="tby">
+		
+					</tbody>
+				</table>
+				<div class="page">
+				</div>
+			</div>
+	</body>
+	<script type="text/javascript">
+		layui.use('laydate', function() {
+			var laydate = layui.laydate;
+		
+			//执行一个laydate实例
+			laydate.render({
+				elem: '#start' //指定元素
+			});
+		
+			//执行一个laydate实例
+			laydate.render({
+				elem: '#end' //指定元素
+			});
+		});
+		<!--检查是否登录-->
+		if ($.cookie("adminName") == null||$.cookie("adminName") !='admin') {
+			location.href = 'login.html'
+		}
+		var io=0;
+		var pages=0;
+		showReocrd(1, 5)
+		<!--类型信息-->
+		function showReocrd(pageNo, pageSize) {
+			$.ajax({
+				type: "get",
+				url: "/blogs_puls/admin/qeuryadminAllPaging?pageNo=" + pageNo + "&pageSize=" + pageSize,
+				async: false,
+				success: function(data) {
+					console.log(data)
+					$('tbody').empty();
+					$(".x-right").text("共有数据：" + +data.list.total)
+					pages=data.list.pages
+					for (var i = 0; i < data.list.list.length; i++) {
+						var tr = "<tr>"
+						tr += "<td><div class='layui-unselect layui-form-checkbox ' lay-skin='primary' data-id=" + data.list.list[
+							i].adminId + "><i class='layui-icon' onclick='chekb(this)'>&#xe605;</i></div></td>"
+						tr += "<td>" + data.list.list[i].adminId + "</td>"
+						tr += "<td>" + data.list.list[i].adminName + "</td>"
+						tr += "<td>" + data.list.list[i].adminCreateTime + "</td>"
+						if (data.list.list[i].adminStatus == 1) {
+							tr += "<td class='td-status'><span class='layui-btn layui-btn-normal layui-btn-mini layui-btn-danger'>禁用</span></td>"
+						} else {
+							tr += "<td class='td-status'><span class='layui-btn layui-btn-normal layui-btn-mini '>正常</span></td>"
+						}
+						tr += "<td class='td-manage'><a onclick='admin_status(this," + data.list.list[i].adminId +
+								")' href='javascript:;' title=" + data.list.list[i].adminStatus +
+								"><i class='layui-icon'>&#xe601;</i></a></td>"
+						tr += "</tr>"
+						$("#tby").append(tr)
+					}
+		
+					page(data.list.total, data.list.pageNum)
+				}
+			});
+		}
+		<!--分页-->
+		function page(total, pageNum) {
+			layui.use(['laypage', 'jquery'], function() {
+				var laypage = layui.laypage,
+					$ = layui.$;
+				$(".page").each(function(i, the) {
+					laypage.render({
+						elem: the //注意，这里的 test1 是 ID，不用加 # 号
+							,
+						count: total //数据总数，从服务端得到
+							,
+						limit: 5 //每页显示条数
+							,
+						curr: pageNum //起始页
+							,
+						groups: 5 //连续页码个数
+							,
+						prev: '上一页' //上一页文本
+							,
+						netx: '下一页' //下一页文本
+							,
+						first: 1 //首页文本
+							,
+						last: pages //尾页文本
+							//跳转页码时调用
+							,
+						jump: function(obj, first) { //obj为当前页的属性和方法，第一次加载first为true
+							//非首次加载 do something
+							if (!first) {
+								//清空以前加载的数据
+								$('tbody').empty();
+								//调用加载函数加载数据
+								showReocrd(obj.curr, obj.limit);	
+								io++;
+							}
+						}
+					});
+				})
+			})
+		}
+		<!--给单选框添加单击事件-->
+		function chekb(obj) {
+			if(io!=0){
+			if ($(obj).parent("div").is(".layui-form-checked")) {
+				$(obj).parent("div").removeClass("layui-form-checked")
+			} else {
+				$(obj).parent("div").addClass("layui-form-checked")
+			}
+			}
+		}
+		/*文章推荐和关闭*/
+		function admin_status(obj, id) {
+			if ($(obj).attr('title') == '1') {
+				layer.confirm('确认要恢复正常吗？', function(index) {
+					$.ajax({
+						type: "get",
+						url: "/blogs_puls/admin/updateAdminStatus?adminStatus=0&adminId=" + id,
+						async: true,
+						success: function(data) {
+							if (data.msg == '恢复成功') {
+								//发异步把用户状态进行更改
+								$(obj).attr('title', '0')
+								$(obj).find('i').html('&#xe62f;');
+								$(obj).parents("tr").find(".td-status").find('span').html('正常');
+								$(obj).parents("tr").find(".td-status").find('span').removeClass("layui-btn-danger")
+								layer.msg('恢复成功！', {
+									icon: 5,
+									time: 1000
+								});
+							} else {
+								layer.msg('恢复失败', {
+									icon: 5,
+									time: 1000
+								});
+							}
+						}
+					});
+				});
+			} else {
+				layer.confirm('确认要禁用吗？', function(index) {
+					$.ajax({
+						type: "get",
+						url: "/blogs_puls/admin/updateAdminStatus?adminStatus=1&adminId=" + id,
+						async: true,
+						success: function(data) {
+							if (data.msg == '恢复成功') {
+								//发异步把用户状态进行更改
+								$(obj).attr('title', '1')
+								$(obj).find('i').html('&#xe601;');
+								$(obj).parents("tr").find(".td-status").find('span').html('禁用');
+								$(obj).parents("tr").find(".td-status").find('span').addClass("layui-btn-danger")
+								layer.msg('禁用成功!', {
+									icon: 5,
+									time: 1000
+								});
+							} else {
+								layer.msg('禁用失败', {
+									icon: 5,
+									time: 1000
+								});
+							}
+						}
+					});
+				});
+			}
+		}
+		<!--批量正常-->
+		function normal(argument) {
+			var data = tableCheck.getData();
+		
+			layer.confirm('确认批量正常吗?', function(index) {
+				//捉到所有被选中的，发异步进行删除
+				$.ajax({
+					type: "post",
+					url: "/blogs_puls/admin/updateBatchIsdelete?adminStatus=0",
+					async: true,
+					data: JSON.stringify(data),
+					contentType: "application/json;charset=utf-8",
+					dataType: "json",
+					success: function(data) {
+						if (data.msg == '修改成功') {
+							layer.msg('修改成功', {
+								icon: 1
+							});
+							$("#tby").children().each(function(){
+								$(this).find(".td-status").find('span').html('正常');
+								$(this).find(".td-status").find('span').removeClass("layui-btn-danger")
+								$(this).find(".td-manage").find('a').attr('title', '0')
+							})
+						} else {
+							layer.msg('修改失败', {
+								icon: 1
+							});
+						}
+					}
+				});
+		
+			});
+		}
+		
+		<!--批量禁用-->
+		function forbidden(argument) {
+			var data = tableCheck.getData();
+		
+			layer.confirm('确认批量禁用吗?', function(index) {
+				//捉到所有被选中的，发异步进行删除
+				$.ajax({
+					type: "post",
+					url: "/blogs_puls/admin/updateBatchIsdelete?adminStatus=1",
+					async: true,
+					data: JSON.stringify(data),
+					contentType: "application/json;charset=utf-8",
+					dataType: "json",
+					success: function(data) {
+						if (data.msg == '修改成功') {
+							layer.msg('修改成功', {
+								icon: 1
+							});
+							$("#tby").children().each(function(){
+								$(this).find(".td-status").find('span').html('禁用');
+								$(this).find(".td-status").find('span').addClass("layui-btn-danger")
+								$(this).find(".td-manage").find('a').attr('title', '1')
+							})
+						} else {
+							layer.msg('修改失败', {
+								icon: 1
+							});
+						}
+					}
+				});
+		
+			});
+		}
+	</script>
+</html>

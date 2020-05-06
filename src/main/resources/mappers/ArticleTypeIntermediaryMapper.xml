@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ywc.blogs.mapper.ArticleTypeIntermediaryMapper">
+    <insert id="insertArticleTypeIntermediary" >
+        insert into article_type_intermediary(article_id,atype_id) value(#{articleId},#{articleTypeId})
+    </insert>
+    <delete id="deleteArticleTypeIntermediaryByarticleId">
+        delete  from article_type_intermediary where article_id=#{articleId}
+    </delete>
+    <select id="queryArticleCorrespondingType" resultType="java.lang.Integer">
+        select  atype_id from  article_type_intermediary where article_id=#{articleId}
+    </select>
+    <delete id="deleteArticleTypeIntermediaryByatypeId">
+        delete  from article_type_intermediary where atype_id=#{atypeId}
+    </delete>
+</mapper>

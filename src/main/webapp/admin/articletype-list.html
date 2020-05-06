@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>文章类型管理</title>
+		<link rel="stylesheet" href="../static/xadmin/css/font.css">
+		<link rel="stylesheet" href="../static/xadmin/css/xadmin.css">
+		<script type="text/javascript" src="../static/plugin/jquery/emoji/lib/script/jquery.min.js"></script>
+		<script src="https://cdn.staticfile.org/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
+		<script src="../static/xadmin/lib/layui/layui.js" charset="utf-8"></script>
+		<script type="text/javascript" src="../static/xadmin/js/xadmin.js"></script>
+		<script type="text/javascript" src="../static/xadmin/js/cookie.js"></script>
+	</head>
+
+	<body>
+		<div class="x-nav">
+			<span class="layui-breadcrumb">
+				<a href="">首页</a>
+				<a href="">类型</a>
+				<a>
+					<cite>导航元素</cite></a>
+			</span>
+			<a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right" href="javascript:location.replace(location.href);"
+			 title="刷新">
+				<i class="layui-icon" style="line-height:30px">ဂ</i></a>
+		</div>
+		<div class="x-body">
+
+			<xblock>
+				<button class="layui-btn layui-btn-danger" onclick="delAll()"><i class="layui-icon"></i>批量删除</button>
+				 <button class="layui-btn" onclick="add()"><i class="layui-icon"></i>添加</button>
+				<span class="x-right" style="line-height:40px"></span>
+			</xblock>
+			<table class="layui-table x-admin">
+				<thead>
+					<tr>
+						<th>
+							<div class="layui-unselect header layui-form-checkbox" lay-skin="primary"><i class="layui-icon">&#xe605;</i></div>
+						</th>
+						<th>ID</th>
+						<th>文章类型</th>
+						<th>操作</th>
+					</tr>
+				</thead>
+				<tbody id="tby">
+
+				</tbody>
+			</table>
+			<div class="page">
+			</div>
+		</div>
+		<!--修改数据模态框-->
+		<div id="motaikunag" style="display: none;">
+			<form class="layui-form">
+				<input type="hidden" id="atypeId" />
+				<div class="layui-form-item">
+					<label class="layui-form-label">文章类型:</label>
+					<div class="layui-input-block">
+						<input type="text" name="atypeName" id="atypeName" required lay-verify="required" placeholder="请输入文章关键字标题"
+						 autocomplete="off" class="layui-input">
+					</div>
+				</div>
+				<div class="layui-form-item">
+					<div class="layui-input-block">
+						<button type="button" class="layui-btn" lay-filter="formDemo" id="btn">立即提交</button>
+						<button type="reset" class="layui-btn layui-btn-primary" onclick="reset()">重置</button>
+					</div>
+				</div>
+			</form>
+		</div>
+	</body>
+	<script type="text/javascript">
+		layui.use('laydate', function() {
+			var laydate = layui.laydate;
+
+			//执行一个laydate实例
+			laydate.render({
+				elem: '#start' //指定元素
+			});
+
+			//执行一个laydate实例
+			laydate.render({
+				elem: '#end' //指定元素
+			});
+		});
+
+		<!--检查是否登录-->
+		if ($.cookie("adminName") == null||$.cookie("adminName") =="") {
+			location.href = 'login.html'
+		}
+		var io=0;
+		var pages=0;
+		showReocrd(1, 5)
+		<!--类型信息-->
+		function showReocrd(pageNo, pageSize) {
+			$.ajax({
+				type: "get",
+				url: "/blogs_puls/articleType/articleTypeAllPaging?pageNo=" + pageNo + "&pageSize=" + pageSize,
+				async: false,
+				success: function(data) {
+					console.log(data)
+					$('tbody').empty();
+					$(".x-right").text("共有数据：" + +data.list.total)
+					pages=data.list.pages
+					for (var i = 0; i < data.list.list.length; i++) {
+						var tr = "<tr>"
+						tr += "<td><div class='layui-unselect layui-form-checkbox ' lay-skin='primary' data-id=" + data.list.list[
+							i].atypeId + "><i class='layui-icon' onclick='chekb(this)'>&#xe605;</i></div></td>"
+						tr += "<td>" + data.list.list[i].atypeId + "</td>"
+						tr += "<td>" + data.list.list[i].atypeName + "</td>"
+						tr += "<td class='td-manage'><a title='编辑'  onclick='openModak(" + data.list.list[i].atypeId +
+							")' href='javascript:;'><i class='layui-icon'>&#xe642;</i></a><a title='删除' onclick='member_del(this," +
+							data.list.list[i].atypeId + ")' href='javascript:;'><i class='layui-icon'>&#xe640;</i></a></td>"
+						tr += "</tr>"
+						$("#tby").append(tr)
+					}
+
+					page(data.list.total, data.list.pageNum)
+				}
+			});
+		}
+       	<!--分页-->
+		function page(total, pageNum) {
+			layui.use(['laypage', 'jquery'], function() {
+				var laypage = layui.laypage,
+					$ = layui.$;
+				$(".page").each(function(i, the) {
+					laypage.render({
+						elem: the //注意，这里的 test1 是 ID，不用加 # 号
+							,
+						count: total //数据总数，从服务端得到
+							,
+						limit: 5 //每页显示条数
+							,
+						curr: pageNum //起始页
+							,
+						groups: 5 //连续页码个数
+							,
+						prev: '上一页' //上一页文本
+							,
+						netx: '下一页' //下一页文本
+							,
+						first: 1 //首页文本
+							,
+						last: pages //尾页文本
+							//跳转页码时调用
+							,
+						jump: function(obj, first) { //obj为当前页的属性和方法，第一次加载first为true
+							//非首次加载 do something
+							if (!first) {
+								//清空以前加载的数据
+								$('tbody').empty();
+								//调用加载函数加载数据
+								showReocrd(obj.curr, obj.limit);
+								<!--给单选框添加单击事件-->
+								io++;
+							}
+						}
+					});
+				})
+			})
+		}
+		<!--给单选框添加单击事件-->
+		function chekb(obj) {
+			if(io!=0){
+			if ($(obj).parent("div").is(".layui-form-checked")) {
+				$(obj).parent("div").removeClass("layui-form-checked")
+			} else {
+				$(obj).parent("div").addClass("layui-form-checked")
+			}
+			}
+		}
+		<!--批量删除-->
+		function delAll(argument) {
+			var data = tableCheck.getData();
+
+			layer.confirm('确认要删除吗?', function(index) {
+				//捉到所有被选中的，发异步进行删除
+				$.ajax({
+					type: "post",
+					url: "/blogs_puls/articleType/deleteArticleId",
+					async: true,
+					data: JSON.stringify(data),
+					contentType: "application/json;charset=utf-8",
+					dataType: "json",
+					success: function(data) {
+						if (data.msg == '删除成功') {
+							layer.msg('删除成功', {
+								icon: 1
+							});
+							$(".layui-form-checked").not('.header').parents('tr').remove();
+						} else {
+							layer.msg('删除失败', {
+								icon: 1
+							});
+						}
+					}
+				});
+
+			});
+		}
+		<!--文章类型修改-->
+		function openModak(id) {
+			layui.use(['layer'], function() {
+				var layer = layui.layer,
+					$ = layui.$;
+				$.ajax({
+					type: "get",
+					url: "/blogs_puls/articleType/articleTypeAllById?atypeId=" + id,
+					async: true,
+					success: function(data) {
+						$("#atypeId").val(data.list.atypeId)
+						$("#atypeName").val(data.list.atypeName)
+						$("#btn").removeClass("add")
+						$("#btn").addClass("btn")
+					}
+				});
+				layer.open({
+					type: 1, //类型
+					area: ['800px', '250px'], //定义宽和高
+					title: '编辑文章类型', //题目
+					shadeClose: false, //点击遮罩层关闭
+					content: $('#motaikunag') //打开的内容
+				});
+			})
+		}
+		<!--修改提交按钮-->
+		$("body").on("click",".btn",function() {	
+			var date = {
+				"atypeId": $("#atypeId").val(),
+				"atypeName": $("#atypeName").val()
+			}
+			$.ajax({
+				type: "post",
+				url: "/blogs_puls/articleType/updateArticleType",
+				data: JSON.stringify(date),
+				contentType: "application/json;charset=utf-8",
+				dataType: "json",
+				async: true,
+				success: function(data) {
+					if (data.msg == '修改成功') {
+						layer.msg('修改成功', {
+							icon: 1
+						});
+						$(function() {
+							window.setTimeout(function() {
+								location.href = "articletype-list.html";
+							}, 2000);
+						});
+					} else {
+						layer.msg('修改失败', {
+							icon: 1
+						});
+						$(function() {
+							window.setTimeout(function() {
+								location.href = "articletype-list.html";
+							}, 2000);
+						});
+					}
+				}
+			});
+		})
+		<!--文章类型单个删除-->
+		function member_del(obj, id) {
+			console.log(id)
+			var data = [id]
+			layer.confirm('确认要删除吗？', function(index) {
+				$.ajax({
+					type: "post",
+					url: "/blogs_puls/articleType/deleteArticleId",
+					async: true,
+					data: JSON.stringify(data),
+					contentType: "application/json;charset=utf-8",
+					dataType: "json",
+					success: function(data) {
+						if (data.msg == '删除成功') {
+							$(obj).parents("tr").remove();
+							layer.msg('已删除!', {
+								icon: 1,
+								time: 1000
+							});
+						} else {
+							layer.msg('删除失败', {
+								icon: 1
+							});
+						}
+					}
+				});
+		
+			});
+		}
+		<!--文章类型添加-->
+		function add() {
+			layui.use(['layer'], function() {
+				var layer = layui.layer,
+					$ = layui.$;
+				$("#atypeName").val("")
+				$("#btn").removeClass("btn")
+				$("#btn").addClass("add")
+				layer.open({
+					type: 1, //类型
+					area: ['800px', '250px'], //定义宽和高
+					title: '添加文章类型', //题目
+					shadeClose: false, //点击遮罩层关闭
+					content: $('#motaikunag') //打开的内容
+				});
+			})
+		}
+		<!--添加提交按钮-->
+		$("body").on("click",".add",function() {	
+			var date = {
+				"atypeName": $("#atypeName").val()
+			}
+			$.ajax({
+				type: "post",
+				url: "/blogs_puls/articleType/InsertarticleType",
+				data: JSON.stringify(date),
+				contentType: "application/json;charset=utf-8",
+				dataType: "json",
+				async: true,
+				success: function(data) {
+					if (data.msg == '添加成功') {
+						layer.msg('添加成功', {
+							icon: 1
+						});
+						$(function() {
+							window.setTimeout(function() {
+								location.href = "articletype-list.html";
+							}, 2000);
+						});
+					} else {
+						layer.msg('添加失败', {
+							icon: 1
+						});
+						$(function() {
+							window.setTimeout(function() {
+								location.href = "articletype-list.html";
+							}, 2000);
+						});
+					}
+				}
+			});
+		})
+	</script>
+</html>

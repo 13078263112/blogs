@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ywc.blogs.mapper.AdminMapper">
+    <resultMap id="adminResultMap" type="com.ywc.blogs.entity.Admin">
+        <result property="adminId" column="admin_id"/>
+        <result property="adminName" column="admin_name"/>
+        <result property="password" column="password"/>
+        <result property="adminStatus" column="admin_status"/>
+        <result property="adminCreateTime" column="admin_createTime"/>
+    </resultMap>
+    <select id="queryAdminByNameAndpassword" resultMap="adminResultMap" parameterType="com.ywc.blogs.entity.Admin">
+        select admin_id,admin_name,password from admin where admin_name=#{adminName} and password=MD5(#{password}) and admin_status =0;
+    </select>
+    <select id="queryAdminByNum" resultType="java.lang.Integer" >
+        select count(admin_id) from admin
+    </select>
+    <update id="updateAdminByIdAndpassword" parameterType="com.ywc.blogs.entity.Admin">
+        UPDATE admin SET password=MD5(#{password}) WHERE admin_id=#{adminId}
+    </update>
+    <select id="queryAdmin" resultMap="adminResultMap" >
+        select admin_id,admin_name,admin_status,admin_createTime from admin
+    </select>
+    <update id="updateAdminByIdAndAdminStatus" parameterType="com.ywc.blogs.entity.Admin">
+        UPDATE admin SET admin_status=#{adminStatus} WHERE admin_id=#{adminId}
+    </update>
+</mapper>

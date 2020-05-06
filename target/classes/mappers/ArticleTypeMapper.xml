@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ywc.blogs.mapper.ArticleTypeMapper">
+    <resultMap id="articleTypeResultMap" type="com.ywc.blogs.entity.ArticleType">
+        <result property="atypeId" column="atype_id"/>
+        <result property="atypeName" column="atype_name"/>
+    </resultMap>
+    <select id="queryAllArticleType" resultMap="articleTypeResultMap">
+        select  atype_id,atype_name from article_type
+    </select>
+    <delete id="deleteArticleTypeByAtypeId">
+        delete  from article_type where atype_id=#{atypeId}
+    </delete>
+    <select id="queryAllArticleTypeByAtypeId" resultMap="articleTypeResultMap">
+        select  atype_id,atype_name from article_type where atype_id=#{articleType}
+    </select>
+    <update id="updateArticleType" parameterType="com.ywc.blogs.entity.ArticleType">
+        UPDATE article_type SET atype_name = #{atypeName} WHERE atype_id=#{atypeId}
+    </update>
+    <insert id="insertArticleType">
+        insert into article_type(atype_name) value (#{atypeName})
+    </insert>
+    <select id="queryAllArticleByAtypenameCount" resultType="java.util.Map">
+        SELECT
+	article_type.atype_name,
+(SELECT COUNT(c.article_type_intermediary_id) FROM article_type_intermediary c WHERE c.atype_id=article_type.atype_id) as com
+FROM
+	article_type
+    </select>
+</mapper>

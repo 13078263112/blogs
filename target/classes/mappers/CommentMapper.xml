@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ywc.blogs.mapper.CommentMapper">
+    <resultMap id="commentVoResultMap" type="com.ywc.blogs.vo.CommentVo">
+        <result property="commentId" column="comment_id"/>
+        <result property="commenConten" column="commen_conten"/>
+        <result property="adminName" column="admin_name"/>
+        <result property="articleTitle" column="article_title"/>
+        <result property="commenCreateTime" column="commen_createTime"/>
+    </resultMap>
+    <select id="queryCommentAllNum" resultType="java.lang.Integer">
+       select COUNT(comment_id) from comment
+    </select>
+    <select id="queryCommentAllPaging" resultMap="commentVoResultMap">
+       SELECT
+	c.comment_id,
+	c.commen_conten,
+	c.commen_createTime,
+	ar.article_title,
+	ad.admin_name
+FROM
+	`comment` c,
+	article ar,
+	admin ad
+WHERE
+	c.article_id=ar.article_id AND
+	ar.article_admin_id=ad.admin_id
+    </select>
+    <delete id="deleteCommentBycommentId">
+        delete  from comment where comment_id=#{commentId}
+    </delete>
+    <delete id="deleteCommentByarticleId">
+        delete  from comment where comment_id=#{articleId}
+    </delete>
+    <insert id="insertComment" parameterType="com.ywc.blogs.vo.CommentAuditVo">
+        insert into  comment(commen_conten,article_id,commen_createTime) VALUE(#{commentauditConten},#{articleId},#{commentauditCreateTime})
+    </insert>
+    <select id="queryCommentByArticleId" resultType="java.util.Map">
+       SELECT
+	c.comment_id,
+	c.commen_conten,
+	c.commen_createTime
+FROM
+	`comment` c
+
+WHERE
+	c.article_id=#{articleId}
+    </select>
+</mapper>

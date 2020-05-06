@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta name="renderer" content="webkit|ie-comp|ie-stand">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<meta name="viewport" content="width=device-width,user-scalable=yes, minimum-scale=0.4, initial-scale=0.8,target-densitydpi=low-dpi" />
+		<meta http-equiv="Cache-Control" content="no-siteapp" />
+		<meta charset="UTF-8">
+		<title>后台登录页面</title>
+
+		<link rel="stylesheet" href="../static/xadmin/css/font.css">
+		<link rel="stylesheet" href="../static/xadmin/css/xadmin.css">
+		<script type="text/javascript" src="../static/plugin/jquery/jquery-3.3.1.min.js"></script>
+		<script src="../static/plugin/jquery/jquery.cookie.js"></script>
+		<script src="../static/xadmin/lib/layui/layui.js" charset="utf-8"></script>
+		<script type="text/javascript" src="../static/xadmin/js/xcity.js"></script>
+	</head>
+		<style type="text/css">
+			
+			
+		</style>
+	<body class="login-bg">
+
+		<div class="login layui-anim layui-anim-up">
+			<div class="message">嘟嘟~后台登录</div>
+			<div id="darkbannerwrap"></div>
+
+			<form class="layui-form">
+				<input name="adminName" placeholder="用户名" type="text" lay-verify="required" class="layui-input">
+				<hr class="hr15">
+				<input name="password" lay-verify="required" placeholder="密码" type="password" class="layui-input">
+				<hr class="hr15">
+				<div class="layui-input-item">	
+				<div class="layui-inline">
+					<input name="yzm" lay-verify="required" placeholder="验证码" type="text" class="layui-input yzm_tx" >
+				</div>
+				<div class="layui-inline"><a class="img_a"><img class="img_yzm" /></a></div>
+				</div>
+				<hr class="hr15">
+				<input value="登录" lay-submit lay-filter="login" style="width:100%;" type="submit">
+				
+				<hr class="hr20">
+			</form>
+		</div>
+
+		<script>
+			$(function() {
+				layui.use('form', function() {
+					var form = layui.form;
+					// layer.msg('玩命卖萌中', function(){
+					//   //关闭后的操作
+					//   });
+					//监听提交
+					form.on('submit(login)', function(data) {
+						// alert(888)
+						// layer.msg(JSON.stringify(data.field),function(){
+						//   location.href='index.html'
+						// });
+						console.log($(".yzm_tx").val());
+						$.ajax({
+							type: "get",
+							url: "/blogs_puls/img/verifyyzm?yzm="+$(".yzm_tx").val()	,
+							async: true,
+							success: function(list) {
+								if(list.msg== '验证正确'){
+									$.ajax({
+										type: "post",
+										url: "adminLogin",
+										async: true,
+										data: JSON.stringify(data.field),
+										contentType: "application/json;charset=utf-8",
+										dataType: "json",
+										success: function(list) {
+											if (list.msg == '查询失败') {
+												layer.msg(JSON.stringify(list.list));
+											} else {
+												location.href = 'index.html'
+									
+											}
+										}
+									});
+								}else{
+									layer.msg("请输入正确的验证码");
+								}
+							}
+						});
+						
+						return false;
+					});
+				});
+			})
+			
+			$.ajax({
+				type: "get",
+				url: "/blogs_puls/img/getYzm",
+				async: true,
+				success: function(list) {
+					console.log(list);
+					$(".img_yzm").attr("src","data:image/gif;base64,"+list.list)
+				}
+			});
+			$(".img_a").click(function(){
+				$.ajax({
+					type: "get",
+					url: "/blogs_puls/img/getYzm",
+					async: true,
+					success: function(list) {
+						console.log(list);
+						$(".img_yzm").attr("src","data:image/gif;base64,"+list.list)
+					}
+				});
+			})
+		</script>
+
+	</body>
+
+</html>
